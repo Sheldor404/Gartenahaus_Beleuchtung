@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gartenhaus</title>
+    <link href="https://fonts.googleapis.com/css?family=Cardo:400,700|Oswald" rel="stylesheet">
+ <style>
+   html{
+    font-family:oswald;
+    background-color:#a4a86c7a; 
+
+  }
+
+  body{
+    min-width: 100vh;
+    min-height: 100vh;
+
+  }
+    .slider { -webkit-appearance: none; margin: 14px; width: 400px; height: 15px; border-radius: 5px; background: #f3f8d3; outline: none; -webkit-transition: .2s; transition: opacity .2s;}
+    .slider::-webkit-slider-thumb {-webkit-appearance: none; appearance: none; width: 25px; height: 25px; border-radius: 12px; background: #f74d4d; cursor: pointer;}
+    .slider::-moz-range-thumb { width: 25px; height: 25px; border-radius: 12px; background: #c43434; cursor: pointer; } 
+
+    .slidecontainer { margin: 20px;}
+    #header{
+      margin-left:70px;
+      padding-left:15px;
+      width:305px;
+      border-radius: 30px;
+      background-color: #71a0a7;
+    }
+    #colordisplay {      margin-top: -290px;            margin-left: 480px ;            height:300px;   border-radius: 50px;             width: 150px;          }
+    #colordisplay p{   margin: 14px;  margin-left: 50px;    }
+    #colorwheel{      margin-left: 14px;      margin-top: 20px;    }
+    .colorslider{margin-left: 14px; width: 400px; height: 100px;}
+
+    .buttons{margin-top: 60px;margin-left: 90px; height: 150px; width: 300px; }
+    .buttons button{
+  margin-left: 30px; 
+	border-radius:50px;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:17px;
+	padding:16px 35px;
+	text-decoration:none;
+}
+  .buttons #fadeon{
+    background-color:#44c767;
+    border:1px solid #18ab29;
+    text-shadow:0px 1px 0px #2f6627;}
+
+    .buttons #fadeoff{
+    background-color:#c43434;
+    border:1px solid #ab1818;
+    text-shadow:0px 1px 0px #662727;}
+
+     .buttons #fadeon:active{
+    background-color:#07a52f ;
+  }
+  .buttons #fadeoff:active{
+    background-color:#791f1f ;
+  }
+  .buttons h1{
+    margin-left: 55px;
+  }
+
+
+        </style>
+
+
+  </head>
+
+  <body>
+
+        <h1 id="header">Gartenhaus Beleuchtung</h1>
+        <div class="slidecontainer">
+        <p>Rot:<span id="Red" >0</span></p>
+        <p><input type="range" onchange="updateslider(this.id,'Red')" id="pwmSliderRed" min="0" max="255" value="0" step="1" class="slider"></p>
+        <p>Grün:<span id="Green" >0</span></p>
+        <p><input type="range" onchange="updateslider(this.id,'Green')" id="pwmSliderGreen" min="0" max="255" value="0" step="1" class="slider"></p>
+        <p>Blau:<span id="Blue" >0</span></p>
+        <p><input type="range" onchange="updateslider(this.id,'Blue')" id="pwmSliderBlue" min="0" max="255" value="0" step="1" class="slider"></p>
+
+
+        <div id="colordisplay" style="background-color: #000000;">
+        <p>.</p>
+        </div>
+
+        <div id="colorwheel">
+        <div class="colorpicker"></div>
+        <div id="colorindicator"></div>
+        <div id="colorpicker"></div>
+        </div>
+
+        <div class="buttons">
+          <h1>Farbwechsel</h1>
+        <button id="fadeon" onclick="updatebutton(this.id)">On</button>
+        <button id="fadeoff" onclick="updatebutton(this.id)">Off</button>
+      </div>
+
+      <div class="slidecontainer">
+        <p>Geschwindigkeit:<span id="speed" >1</span></p>
+        <p><input type="range" onchange="updateslider(this.id,'speed')" id="fadeslider" min="1" max="10" value="1" step="1" class="slider"></p>
+      </div>
+
+
+       
+
+      <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5">      </script>
+
+
+
+        <script>
+          launchFullScreen(document.documentElement); // the whole page
+
+            let coloridicator = document.getElementById('colorindicator');
+            var output = document.getElementById("colordisplay");
+            
+          const colorPicker = new iro.ColorPicker("#colorpicker",{
+            width:400, color: "#fff"
+          });
+          colorPicker.on('color:change',function(color){
+            coloridicator.style.backgroundColor = color.hexString;
+            output.style.backgroundColor = color.hexString;
+            document.getElementById("pwmSliderRed").value = hexToRgb(color.hexString).r; 
+            document.getElementById("Red").innerHTML = hexToRgb(color.hexString).r; 
+            document.getElementById("pwmSliderGreen").value = hexToRgb(color.hexString).g;
+            document.getElementById("Green").innerHTML = hexToRgb(color.hexString).g; 
+            document.getElementById("pwmSliderBlue").value = hexToRgb(color.hexString).b;
+            document.getElementById("Blue").innerHTML = hexToRgb(color.hexString).b; 
+            
+            var httpRequest = new XMLHttpRequest();
+            httpRequest.open("GET", "/allcolorsliderr?value="+hexToRgb(color.hexString).r, true);
+            httpRequest.send();
+            httpRequest = new XMLHttpRequest();
+            httpRequest.open("GET", "/allcolorsliderg?value="+hexToRgb(color.hexString).g, true);
+            httpRequest.send();
+            httpRequest = new XMLHttpRequest();
+            httpRequest.open("GET", "/allcolorsliderb?value="+hexToRgb(color.hexString).b, true);
+            httpRequest.send();
+            
+          });
+
+
+                  function launchFullScreen(element) {
+          if(element.requestFullScreen) {
+            element.requestFullScreen();
+          } else if(element.mozRequestFullScreen) {
+            element.mozRequestFullScreen();
+          } else if(element.webkitRequestFullScreen) {
+            element.webkitRequestFullScreen();
+          }
+           }
+
+            function updateslider(sliderid,outputid){
+            var slider = document.getElementById(sliderid);
+            var output = document.getElementById(outputid);
+
+            document.getElementById("colordisplay").style.backgroundColor = 
+            "rgb("+document.getElementById("pwmSliderRed").value+", "+document.getElementById("pwmSliderGreen").value+","+document.getElementById("pwmSliderBlue").value+")"; 
+
+            document.getElementById("colordisplay").style.color = 
+            "rgb("+document.getElementById("pwmSliderRed").value+", "+document.getElementById("pwmSliderGreen").value+","+document.getElementById("pwmSliderBlue").value+")"; 
+
+            output.innerHTML = slider.value;
+
+            var httpRequest = new XMLHttpRequest();
+            httpRequest.open("GET", "/"+sliderid+"?value="+ slider.value, true);
+            httpRequest.send();
+
+            slider.oninput = function(){
+
+              document.getElementById("colordisplay").style.backgroundColor = 
+            "rgb("+document.getElementById("pwmSliderRed").value+", "+document.getElementById("pwmSliderGreen").value+","+document.getElementById("pwmSliderBlue").value+")"; 
+            document.getElementById("colordisplay").style.color = 
+            "rgb("+document.getElementById("pwmSliderRed").value+", "+document.getElementById("pwmSliderGreen").value+","+document.getElementById("pwmSliderBlue").value+")"; 
+
+            output.innerHTML = this.value;
+            var httpRequest = new XMLHttpRequest();
+            httpRequest.open("GET", "/"+sliderid+"?value="+ slider.value, true);
+            httpRequest.send();
+
+            }
+        }
+
+            function hexToRgb(hex) {
+      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;}
+
+        function updatebutton(id){
+          
+          var httpRequest = new XMLHttpRequest();
+            httpRequest.open("GET", "/fadebutton?value="+id, true);
+            httpRequest.send();
+        }
+
+        </script>
+      </div>
+  </body>
+</html>
