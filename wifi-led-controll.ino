@@ -18,8 +18,8 @@
 
 
 // Insert your own wifi network SSID and Password
-char* ssid = "Hof Grueter";
-char* password = "NicoMarl-#2";
+char* ssid = "******";
+char* password = "****";
 
 const int ledRPin = 4;
 const int ledGPin = 5;
